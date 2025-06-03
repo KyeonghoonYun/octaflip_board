@@ -28,6 +28,7 @@ struct LedPanelSettings *led_initialize(void) {
     // leds->matrix = led_matrix_create(LED_PANEL_SIZE, 1, 1);
 
     struct RGBLedMatrixOptions opts;
+    memset(&opts, 0, sizeof(opts));
     opts.cols = 64;
     opts.rows = 64;
 
