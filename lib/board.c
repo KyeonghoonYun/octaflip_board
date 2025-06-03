@@ -56,14 +56,14 @@ void draw_grid(struct LedPanelSettings *leds) {
         int y0 = 3 + 4 * row;
         int c = 4;
         print_debug_msg("draw_grid", x0, y0, 1, 33, c);
-        draw_pixels(leds->canvas, x0, y0, 1, 33, c);
+        draw_pixels(leds, x0, y0, 1, 33, c);
     }
     for (int col = 0; col < 8; col++) {
         int x0 = 3 + 4 * col;
         int y0 = 3;
         int c = 4;
         print_debug_msg("draw_grid", x0, y0, 33, 1, c);
-        draw_pixels(leds->canvas, x0, y0, 33, 1, c);
+        draw_pixels(leds, x0, y0, 33, 1, c);
     }
     leds->canvas = led_matrix_swap_on_vsync(leds->matrix, leds->canvas);
 }
@@ -82,7 +82,7 @@ void draw_board(struct LedPanelSettings *leds, char board[8][8]) {
             else if (board[row][col] == '.')    c = 3;
             else                                c = 4;
             print_debug_msg("draw_board", x0, y0, 3, 3, c);
-            draw_pixels(leds->canvas, x0, y0, 3, 3, c);
+            draw_pixels(leds, x0, y0, 3, 3, c);
         }
     }
     leds->canvas = led_matrix_swap_on_vsync(leds->matrix, leds->canvas);
@@ -96,10 +96,10 @@ void draw_points(struct LedPanelSettings *leds, int point_red, int point_blue) {
     int c = 3;
     
     print_debug_msg("draw_points[clean]", 3, 39, 8, 60, c);
-    draw_pixels(leds->canvas, 3, 39, 8, 60, c);
+    draw_pixels(leds, 3, 39, 8, 60, c);
     
     print_debug_msg("draw_points", 3, 39, 8, 60, c);
-    draw_text(leds->canvas, leds->font, 3, 39,
+    draw_text(leds, leds->font, 3, 39,
                 255, 255, 255,
                 buf, 1);
     leds->canvas = led_matrix_swap_on_vsync(leds->matrix, leds->canvas);
