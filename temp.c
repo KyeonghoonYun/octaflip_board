@@ -15,13 +15,11 @@ int main() {
     }
     printf("initialize successed\n");
 
-    sleep(5);
-
     printf("draw grid ...\n");
     draw_grid(t);
     printf("draw grid successed\n");
 
-    sleep(5);
+    sleep(3);
 
     char board[8][8] = {
         {'R', '.', '.', '.', '.', '.', '.', 'B'},
@@ -39,19 +37,17 @@ int main() {
     draw_board(t, board);
     printf("draw board successed\n");
 
-    sleep(5);
+    sleep(3);
 
     printf("draw scores ...\n");
     draw_points(t, point_red, point_blue);
     printf("draw scores successed\n");
 
-    sleep(5);
+    sleep(3);
 
     printf("clear leds ...\n");
     led_clear(t);
     printf("clear leds successed");
-
-    sleep(5);
 
     printf("delete ...\n");
     led_delete(t);
