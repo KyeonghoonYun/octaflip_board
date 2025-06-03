@@ -15,7 +15,7 @@ int main() {
         int y = 0 + 10 * count;
         led_canvas_set_pixel(leds->canvas, x, y, 255 - (255/6)*count, 0, 0);
         leds->canvas = led_matrix_swap_on_vsync(leds->matrix, leds->canvas);
-        usleep(1000);
+        sleep(1);
     }
 
     // x-axis with color blue
@@ -24,11 +24,12 @@ int main() {
         int y = 0;
         led_canvas_set_pixel(leds->canvas, x, y, 0, 0, 255 - (255/6)*count);
         leds->canvas = led_matrix_swap_on_vsync(leds->matrix, leds->canvas);
-        usleep(1000);
+        sleep(1);
     }
 
     // green at center
     led_canvas_set_pixel(leds->canvas, 32, 32, 0, 255, 0);
+    leds->canvas = led_matrix_swap_on_vsync(leds->matrix, leds->canvas);
 
     sleep(5);
 
