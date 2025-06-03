@@ -126,10 +126,11 @@ static inline void print_debug_msg(const char* func_name, int x, int y, int heig
         rgb_colors[color_num].r, rgb_colors[color_num].g, rgb_colors[color_num].b);
 }
 
-static inline void draw_pixels(struct LedCanvas* canvas, int x0, int y0, int height, int width, int color_num) {
+static inline void draw_pixels(struct LedPanelSettings *leds, int x0, int y0, int height, int width, int color_num) {
     for (int dy = 0; dy < width; dy++) {
         for (int dx = 0; dx < height; dx++) {
-            led_canvas_set_pixel(canvas, x0+dx, y0+dy, rgb_colors[color_num].r, rgb_colors[color_num].g, rgb_colors[color_num].b);
+            led_canvas_set_pixel(leds->canvas, x0+dx, y0+dy, rgb_colors[color_num].r, rgb_colors[color_num].g, rgb_colors[color_num].b);
+            leds->canvas = led_matrix_swap_on_vsync(leds->matrix, leds->canvas);
             usleep(100);
         }
     }
