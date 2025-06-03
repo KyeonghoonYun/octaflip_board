@@ -1,6 +1,6 @@
 echo "start"
-make clean
-make all
+# make clean
+# make all
 
 g++ -c -Iinclude ./lib/board.c -o ./lib/board.o
 g++ -c -Iinclude temp.c -o temp.o
