@@ -99,7 +99,7 @@ void draw_points(struct LedPanelSettings *leds, int point_red, int point_blue) {
     draw_pixels(leds, 3, 39, 8, 60, c);
     
     print_debug_msg("draw_points", 3, 39, 8, 60, c);
-    draw_text(leds, leds->font, 3, 39,
+    draw_text(leds->canvas, leds->font, 3, 39,
                 255, 255, 255,
                 buf, 1);
     leds->canvas = led_matrix_swap_on_vsync(leds->matrix, leds->canvas);
