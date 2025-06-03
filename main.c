@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 
-int main() {
+int main(int argc, char* argv[]) {
     
     printf("initialize ...\n");
     struct LedPanelSettings *t = led_initialize();
