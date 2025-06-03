@@ -53,12 +53,18 @@ void draw_grid(struct LedPanelSettings *leds) {
     for (int row = 0; row <= 8; row++) {
         int x0 = 3;
         int y0 = 3 + 4 * row;
-        led_canvas_set_pixels(leds->canvas, x0, y0, 33, 1, &rgb_colors[4]);
+        int c = 4;
+        printf("[Debug] draw_grid(); coordinate (%d, %d) with color RGB (%d, %d, %d)\n", 
+            y0, x0, rgb_colors[c].r, rgb_colors[c].g, rgb_colors[c].b);
+        led_canvas_set_pixels(leds->canvas, x0, y0, 33, 1, &(rgb_colors[4]));
     }
     for (int col = 0; col < 8; col++) {
         int x0 = 3 + 4 * col;
         int y0 = 3;
-        led_canvas_set_pixels(leds->canvas, x0, y0, 1, 33, &rgb_colors[4]);
+        int c = 4;
+        printf("[Debug] draw_grid(); coordinate (%d, %d) with color RGB (%d, %d, %d)\n", 
+            y0, x0, rgb_colors[c].r, rgb_colors[c].g, rgb_colors[c].b);
+        led_canvas_set_pixels(leds->canvas, x0, y0, 1, 33, &(rgb_colors[4]));
     }
     leds->canvas = led_matrix_swap_on_vsync(leds->matrix, leds->canvas);
 }
@@ -71,19 +77,34 @@ void draw_board(struct LedPanelSettings *leds, char board[8][8]) {
             int x0 = 4 + 4 * col;
 
             if (board[row][col] == 'R') {
-                led_canvas_set_pixels(leds->canvas, x0, y0, 3, 3, &rgb_colors[0]);
+                int c = 0;
+                printf("[Debug] draw_board(); coordinate (%d, %d) with color RGB (%d, %d, %d)\n", 
+                    y0, x0, rgb_colors[c].r, rgb_colors[c].g, rgb_colors[c].b);
+                led_canvas_set_pixels(leds->canvas, x0, y0, 3, 3, &(rgb_colors[0]));
             }
             else if (board[row][col] == 'B') {
-                led_canvas_set_pixels(leds->canvas, x0, y0, 3, 3, &rgb_colors[1]);
+                int c = 1;
+                printf("[Debug] draw_board(); coordinate (%d, %d) with color RGB (%d, %d, %d)\n", 
+                    y0, x0, rgb_colors[c].r, rgb_colors[c].g, rgb_colors[c].b);
+                led_canvas_set_pixels(leds->canvas, x0, y0, 3, 3, &(rgb_colors[1]));
             }
             else if (board[row][col] == '#') {
-                led_canvas_set_pixels(leds->canvas, x0, y0, 3, 3, &rgb_colors[2]);
+                int c = 2;
+                printf("[Debug] draw_board(); coordinate (%d, %d) with color RGB (%d, %d, %d)\n", 
+                    y0, x0, rgb_colors[c].r, rgb_colors[c].g, rgb_colors[c].b);
+                led_canvas_set_pixels(leds->canvas, x0, y0, 3, 3, &(rgb_colors[2]));
             }
             else if (board[row][col] == '.') {
-                led_canvas_set_pixels(leds->canvas, x0, y0, 3, 3, &rgb_colors[3]);
+                int c = 3;
+                printf("[Debug] draw_board(); coordinate (%d, %d) with color RGB (%d, %d, %d)\n", 
+                    y0, x0, rgb_colors[c].r, rgb_colors[c].g, rgb_colors[c].b);
+                led_canvas_set_pixels(leds->canvas, x0, y0, 3, 3, &(rgb_colors[3]));
             }
             else {
-                led_canvas_set_pixels(leds->canvas, x0, y0, 3, 3, &rgb_colors[4]);
+                int c = 4;
+                printf("[Debug] draw_board(); coordinate (%d, %d) with color RGB (%d, %d, %d)\n", 
+                    y0, x0, rgb_colors[c].r, rgb_colors[c].g, rgb_colors[c].b);
+                led_canvas_set_pixels(leds->canvas, x0, y0, 3, 3, &(rgb_colors[4]));
             }
         }
     }
@@ -95,7 +116,7 @@ void draw_points(struct LedPanelSettings *leds, int point_red, int point_blue) {
     char buf[20];
     sprintf(buf, "%s%02d   %s%02d", "R:", point_red, "B:", point_blue);
     buf[strlen(buf)] = '\0';
-    led_canvas_set_pixels(leds->canvas, 3, 39, 60, 8, &rgb_colors[3]);
+    led_canvas_set_pixels(leds->canvas, 3, 39, 60, 8, &(rgb_colors[3]));
     draw_text(leds->canvas, leds->font, 3, 39,
                 255, 255, 255,
                 buf, 1);
