@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #define LED_PANEL_SIZE 64
 
@@ -129,6 +130,7 @@ static inline void draw_pixels(struct LedCanvas* canvas, int x0, int y0, int hei
     for (int dy = 0; dy < width; dy++) {
         for (int dx = 0; dx < height; dx++) {
             led_canvas_set_pixel(canvas, x0+dx, y0+dy, rgb_colors[color_num].r, rgb_colors[color_num].g, rgb_colors[color_num].b);
+            usleep(100);
         }
     }
 }
