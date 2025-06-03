@@ -56,7 +56,10 @@ void draw_grid(struct LedPanelSettings *leds) {
         int c = 4;
         printf("[Debug] draw_grid(); coordinate (%d, %d) with color RGB (%d, %d, %d)\n", 
             y0, x0, rgb_colors[c].r, rgb_colors[c].g, rgb_colors[c].b);
-        led_canvas_set_pixels(leds->canvas, x0, y0, 33, 1, &(rgb_colors[4]));
+        // led_canvas_set_pixels(leds->canvas, x0, y0, 33, 1, &(rgb_colors[4]));
+        for (int dy = 0; dy < 33; dy++) {
+            led_canvas_set_pixel(leds->canvas, x0, y0+dy, rgb_colors[4].r, rgb_colors[4].g, rgb_colors[4].b);
+        }
     }
     for (int col = 0; col < 8; col++) {
         int x0 = 3 + 4 * col;
@@ -65,6 +68,9 @@ void draw_grid(struct LedPanelSettings *leds) {
         printf("[Debug] draw_grid(); coordinate (%d, %d) with color RGB (%d, %d, %d)\n", 
             y0, x0, rgb_colors[c].r, rgb_colors[c].g, rgb_colors[c].b);
         led_canvas_set_pixels(leds->canvas, x0, y0, 1, 33, &(rgb_colors[4]));
+        for (int dx = 0; dx < 33; dx++) {
+            led_canvas_set_pixel(leds->canvas, x0+dx, y0, rgb_colors[4].r, rgb_colors[4].g, rgb_colors[4].b);
+        }
     }
     leds->canvas = led_matrix_swap_on_vsync(leds->matrix, leds->canvas);
 }
