@@ -120,7 +120,7 @@ void led_delete(struct LedPanelSettings *leds) {
 
 
 
-static inline void print_debug_msg(const char** func_name, int x, int y, int height, int width, int color_num) {
+static inline void print_debug_msg(const char* func_name, int x, int y, int height, int width, int color_num) {
     printf("[Debug] %s(); coordinate (y,x):(%d, %d), width x height:%dx%d; color RGB (%d, %d, %d)\n", 
         func_name, y, x, width, height,
         rgb_colors[color_num].r, rgb_colors[color_num].g, rgb_colors[color_num].b);

@@ -28,7 +28,7 @@ void led_clear(struct LedPanelSettings *leds);
 void led_delete(struct LedPanelSettings *leds);
 
 
-static inline void print_debug_msg(const char** func_name, int x, int y, int height, int width, int color_num);
+static inline void print_debug_msg(const char* func_name, int x, int y, int height, int width, int color_num);
 
 static inline void draw_pixels(struct LedCanvas* canvas, int x0, int y0, int height, int width, int color_num);
 
