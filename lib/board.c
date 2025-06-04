@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #define LED_PANEL_SIZE 64
 
@@ -118,7 +119,7 @@ int main(){
         fprintf(stderr, "Failed to initialize LED panel\n");
         return 1;
     }
-    char board[8][8] = {0}
+    char board[8][8] = {0};
     for(int i=0;i<8;i++){
         char line[100];
         scanf("%s", line);
