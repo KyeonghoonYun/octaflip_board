@@ -3,38 +3,24 @@
 
 #include "led-matrix-c.h"
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
+// Structure to hold LED panel configuration
 struct LedPanelSettings {
-    int size;
-    struct RGBLedMatrix *matrix;
     struct LedCanvas *canvas;
-    struct LedFont *font;
+    struct LedMatrix *matrix;
+    struct LedFont   *font;
+    int               size;  // panel size (e.g., 64)
 };
 
+// Initialize the panel: create matrix → load font → get canvas
 struct LedPanelSettings *led_initialize(void);
 
-void draw_grid(struct LedPanelSettings *leds);
-
+// Given an 8×8 board array, draw grid (borders) + fill each cell on a 64×64 matrix
 void draw_board(struct LedPanelSettings *leds, char board[8][8]);
 
-void draw_points(struct LedPanelSettings *leds, int point_red, int point_blue);
-
+// Clear the entire LED canvas (no flicker)
 void led_clear(struct LedPanelSettings *leds);
 
+// Release resources
 void led_delete(struct LedPanelSettings *leds);
 
-
-static inline void print_debug_msg(const char* func_name, int x, int y, int height, int width, int color_num);
-
-static inline void draw_pixels(struct LedPanelSettings *leds, int x0, int y0, int height, int width, int color_num);
-
-
-#ifdef __cplusplus
-}  // extern "C"
-#endif
-
-#endif
+#endif // BOARD_H
