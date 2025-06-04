@@ -1,57 +1,32 @@
 #include "board.h"
-
-#include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
+#include <stdio.h>
 
-
-int main(int argc, char* argv[]) {
-    
-    printf("initialize ...\n");
-    struct LedPanelSettings *t = led_initialize();
-    if (t == NULL) {
-        printf("initialize failed\n");
+int main(void) {
+    struct LedPanelSettings *leds = led_initialize();
+    if (!leds) {
+        fprintf(stderr, "Failed to initialize LED panel\n");
         return 1;
     }
-    printf("initialize successed\n");
 
-    printf("draw grid ...\n");
-    draw_grid(t);
-    printf("draw grid successed\n");
-
-    sleep(1);
-
+    // Example 8×8 board: 'R', 'B', '#', '.' 
     char board[8][8] = {
         {'R', '.', '.', '.', '.', '.', '.', 'B'},
+        {'.', '#', '.', '.', '.', '.', '#', '.'},
+        {'.', '.', 'R', '.', '.', 'B', '.', '.'},
         {'.', '.', '.', '.', '.', '.', '.', '.'},
-        {'.', '.', '.', '.', '.', '.', '.', '.'},
-        {'.', '.', '.', '.', '.', '.', '.', '.'},
-        {'.', '.', '.', '.', '.', '.', '.', '.'},
-        {'.', '.', '.', '.', '.', '.', '.', '.'},
-        {'.', '.', '.', '.', '.', '.', '.', '.'},
+        {'.', '.', '.', '.', '#', '.', '.', '.'},
+        {'.', '.', 'B', '.', '.', 'R', '.', '.'},
+        {'.', '#', '.', '.', '.', '.', '#', '.'},
         {'B', '.', '.', '.', '.', '.', '.', 'R'}
     };
-    int point_red = 2, point_blue = 2;
 
-    printf("draw board ...\n");
-    draw_board(t, board);
-    printf("draw board successed\n");
-
+    // Draw the board and hold for 5 seconds
+    draw_board(leds, board);
     sleep(5);
 
-    //printf("draw scores ...\n");
-    //draw_points(t, point_red, point_blue);
-    //printf("draw scores successed\n");
-
-    //sleep(3);
-
-    printf("clear leds ...\n");
-    led_clear(t);
-    printf("clear leds successed");
-
-    printf("delete ...\n");
-    led_delete(t);
-    printf("delete successed\n");
-    
+    // Clear and exit
+    led_clear(leds);
+    led_delete(leds);
     return 0;
 }

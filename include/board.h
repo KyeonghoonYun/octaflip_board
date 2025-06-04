@@ -3,38 +3,36 @@
 
 #include "led-matrix-c.h"
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+// Holds the RGB LED matrix, its canvas, and an optional font handle.
 struct LedPanelSettings {
-    int size;
-    struct RGBLedMatrix *matrix;
     struct LedCanvas *canvas;
-    struct LedFont *font;
+    struct LedMatrix *matrix;
+    struct LedFont   *font;
+    int               size;  // panel size (e.g., 64)
 };
 
+// Initialize a 64×64 RGB LED panel. Returns NULL on failure.
 struct LedPanelSettings *led_initialize(void);
 
-void draw_grid(struct LedPanelSettings *leds);
-
+// Draw an 8×8 logical board onto the 64×64 panel in a single pass.
+//   - Any pixel with x%8==0 || x%8==7 || y%8==0 || y%8==7 is painted white (grid line).
+//   - Otherwise, (x/8, y/8) indexes into board[row][col], and we pick the color:
+//       'R' → red, 'B' → blue, '#' → gray, '.' or anything else → black.
+// At the very end, we call swap_on_vsync once to update the display.
 void draw_board(struct LedPanelSettings *leds, char board[8][8]);
 
-void draw_points(struct LedPanelSettings *leds, int point_red, int point_blue);
-
+// Clear the entire 64×64 LED panel to black (in one call + swap).
 void led_clear(struct LedPanelSettings *leds);
 
+// Free all resources (font, matrix, struct).
 void led_delete(struct LedPanelSettings *leds);
-
-
-static inline void print_debug_msg(const char* func_name, int x, int y, int height, int width, int color_num);
-
-static inline void draw_pixels(struct LedPanelSettings *leds, int x0, int y0, int height, int width, int color_num);
-
 
 #ifdef __cplusplus
 }  // extern "C"
 #endif
 
-#endif
+#endif // BOARD_H
