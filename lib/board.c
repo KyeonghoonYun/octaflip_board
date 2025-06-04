@@ -4,121 +4,107 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define PANEL_SIZE 64
-#define CELL_SIZE   8
+#define LED_PANEL_SIZE 64
 
-// Index → 의미
-//   0: 'R' → 빨강
-//   1: 'B' → 파랑
-//   2: '#' → 회색
-//   3: '.'(또는 기타) → 검정
-//   4: 그리드 → 흰색
+// Color table for symbols and grid lines.
+//   index:   0      1        2          3      4
+//   symbol: 'R',   'B',    '#',       '.',   grid-line
 static struct Color rgb_colors[] = {
-    {255,   0,   0},  // index 0
-    {  0,   0, 255},  // index 1
-    {128, 128, 128},  // index 2
-    {  0,   0,   0},  // index 3
-    {255, 255, 255}   // index 4
+    {255,   0,   0},   // 'R' → red
+    {  0,   0, 255},   // 'B' → blue
+    {128, 128, 128},   // '#' → gray
+    {  0,   0,   0},   // '.' (or any other) → black
+    {255, 255, 255}    // grid-line → white
 };
 
 struct LedPanelSettings *led_initialize(void) {
-    struct LedPanelSettings *leds = (struct LedPanelSettings *)malloc(sizeof(*leds));
+    struct LedPanelSettings *leds = (struct LedPanelSettings*)malloc(sizeof(*leds));
     if (!leds) return NULL;
     memset(leds, 0, sizeof(*leds));
-    leds->size = PANEL_SIZE;
 
+    leds->size = LED_PANEL_SIZE;
+
+    // Set up a 64×64 matrix
     struct RGBLedMatrixOptions opts;
     memset(&opts, 0, sizeof(opts));
-    opts.rows = PANEL_SIZE;
-    opts.cols = PANEL_SIZE;
+    opts.rows = LED_PANEL_SIZE;
+    opts.cols = LED_PANEL_SIZE;
 
-    // C API 함수 결과를 LedMatrix*로 캐스팅
-    leds->matrix = (struct LedMatrix *)led_matrix_create_from_options(&opts, NULL, NULL);
+    leds->matrix = led_matrix_create_from_options(&opts, NULL, NULL);
     if (!leds->matrix) {
         free(leds);
         return NULL;
     }
 
-    // 폰트가 반드시 non-NULL 이어야 이후에 led_matrix_get_canvas()가 실패하지 않습니다.
+    // Load a basic font so that led_matrix_create doesn't fail.
     leds->font = load_font("rpi-rgb-led-matrix-master/fonts/5x8.bdf");
     if (!leds->font) {
-        led_matrix_delete((struct LedMatrix *)leds->matrix);
+        led_matrix_delete(leds->matrix);
         free(leds);
         return NULL;
     }
 
-    leds->canvas = (struct LedCanvas *)led_matrix_get_canvas((struct LedMatrix *)leds->matrix);
+    // Grab the canvas pointer
+    leds->canvas = led_matrix_get_canvas(leds->matrix);
     if (!leds->canvas) {
-        delete_font((struct LedFont *)leds->font);
-        led_matrix_delete((struct LedMatrix *)leds->matrix);
+        delete_font(leds->font);
+        led_matrix_delete(leds->matrix);
         free(leds);
         return NULL;
     }
 
-    // 최초 화면을 검은색으로 클리어 & swap
-    led_canvas_clear((struct LedCanvas *)leds->canvas);
-    leds->canvas = (struct LedCanvas *)led_matrix_swap_on_vsync(
-        (struct LedMatrix *)leds->matrix,
-        (struct LedCanvas *)leds->canvas
-    );
+    // Start with a black screen
+    led_canvas_clear(leds->canvas);
+    leds->canvas = led_matrix_swap_on_vsync(leds->matrix, leds->canvas);
     return leds;
 }
 
 void draw_board(struct LedPanelSettings *leds, char board[8][8]) {
-    // 1) 전체를 검은색으로 클리어
-    led_canvas_clear((struct LedCanvas *)leds->canvas);
+    // 1) Clear to black first
+    led_canvas_clear(leds->canvas);
 
-    // 2) 0 ≤ x,y < 64 범위에서 픽셀을 한 번만 방문
-    for (int y = 0; y < PANEL_SIZE; y++) {
-        for (int x = 0; x < PANEL_SIZE; x++) {
-            int color_index;
+    // 2) Single pass: for each pixel (x,y) in [0..63]
+    for (int y = 0; y < LED_PANEL_SIZE; y++) {
+        for (int x = 0; x < LED_PANEL_SIZE; x++) {
+            int color_idx;
 
-            // — 그리드(테두리) 여부 판별 —
-            //   x%8==0 or x%8==7 or y%8==0 or y%8==7 → 흰색(인덱스 4)
-            if ((x % CELL_SIZE == 0) || (x % CELL_SIZE == CELL_SIZE - 1) ||
-                (y % CELL_SIZE == 0) || (y % CELL_SIZE == CELL_SIZE - 1)) {
-                color_index = 4; // white for grid
+            // If this pixel is on a cell border (grid line), paint white:
+            if ((x % 8 == 0) || (y % 8 == 0)) {
+                color_idx = 4;  // white (grid)
             } else {
-                // — 내부(interior) 픽셀은 board[row][col] 값으로 색 결정 —
-                int row = y / CELL_SIZE;  // 0..7
-                int col = x / CELL_SIZE;  // 0..7
+                // Otherwise: interior. Determine which cell by integer-dividing by 8.
+                int row = y / 8;   // 0..7
+                int col = x / 8;   // 0..7
                 char c = board[row][col];
-                if      (c == 'R') color_index = 0;
-                else if (c == 'B') color_index = 1;
-                else if (c == '#') color_index = 2;
-                else                color_index = 3;
+                if      (c == 'R') color_idx = 0;
+                else if (c == 'B') color_idx = 1;
+                else if (c == '#') color_idx = 2;
+                else                color_idx = 3;  // '.' or any other → black
             }
 
-            // 3) 해당 픽셀에 색 칠하기
+            // Paint the pixel at (x,y)
             led_canvas_set_pixel(
-                (struct LedCanvas *)leds->canvas,
-                x, y,
-                rgb_colors[color_index].r,
-                rgb_colors[color_index].g,
-                rgb_colors[color_index].b
+                leds->canvas, x, y,
+                rgb_colors[color_idx].r,
+                rgb_colors[color_idx].g,
+                rgb_colors[color_idx].b
             );
         }
     }
 
-    // 4) 한 번만 swap_on_vsync 호출하여 전체 화면을 업데이트
-    leds->canvas = (struct LedCanvas *)led_matrix_swap_on_vsync(
-        (struct LedMatrix *)leds->matrix,
-        (struct LedCanvas *)leds->canvas
-    );
+    // 3) Swap once to update the entire display
+    leds->canvas = led_matrix_swap_on_vsync(leds->matrix, leds->canvas);
 }
 
 void led_clear(struct LedPanelSettings *leds) {
-    // 전체를 검은색으로 클리어하고 바로 swap
-    led_canvas_clear((struct LedCanvas *)leds->canvas);
-    leds->canvas = (struct LedCanvas *)led_matrix_swap_on_vsync(
-        (struct LedMatrix *)leds->matrix,
-        (struct LedCanvas *)leds->canvas
-    );
+    // Clear all to black and swap immediately
+    led_canvas_clear(leds->canvas);
+    leds->canvas = led_matrix_swap_on_vsync(leds->matrix, leds->canvas);
 }
 
 void led_delete(struct LedPanelSettings *leds) {
     if (!leds) return;
-    delete_font((struct LedFont *)leds->font);
-    led_matrix_delete((struct LedMatrix *)leds->matrix);
+    delete_font(leds->font);
+    led_matrix_delete(leds->matrix);
     free(leds);
 }

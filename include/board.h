@@ -10,7 +10,7 @@ extern "C" {
 // Holds the RGB LED matrix, its canvas, and a font handle.
 struct LedPanelSettings {
     struct LedCanvas *canvas;
-    struct LedMatrix *matrix;
+    struct RGBLedMatrix *matrix;
     struct LedFont   *font;
     int               size;  // panel size (e.g., 64)
 };
