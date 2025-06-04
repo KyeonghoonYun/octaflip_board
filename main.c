@@ -1,19 +1,26 @@
 #include "board.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
+
 int main(int argc, char* argv[]) {
-    // 1) Initialize LED matrix
+    
     printf("initialize ...\n");
-    struct LedPanelSettings *leds = led_initialize();
-    if (leds == NULL) {
-        fprintf(stderr, "initialize failed\n");
+    struct LedPanelSettings *t = led_initialize();
+    if (t == NULL) {
+        printf("initialize failed\n");
         return 1;
     }
-    printf("initialize succeeded\n");
+    printf("initialize successed\n");
 
-    // 2) Example 8×8 board (R, B, ., #)
+    printf("draw grid ...\n");
+    draw_grid(t);
+    printf("draw grid successed\n");
+
+    sleep(1);
+
     char board[8][8] = {
         {'R', '.', '.', '.', '.', '.', '.', 'B'},
         {'.', '.', '.', '.', '.', '.', '.', '.'},
@@ -24,24 +31,27 @@ int main(int argc, char* argv[]) {
         {'.', '.', '.', '.', '.', '.', '.', '.'},
         {'B', '.', '.', '.', '.', '.', '.', 'R'}
     };
+    int point_red = 2, point_blue = 2;
 
-    // 3) Draw the board on the 64×64 panel
     printf("draw board ...\n");
-    draw_board(leds, board);
-    printf("draw board succeeded\n");
+    draw_board(t, board);
+    printf("draw board successed\n");
 
-    // 4) Wait for 3 seconds
-    sleep(3);
+    sleep(1);
 
-    // 5) Clear the LED panel
+    //printf("draw scores ...\n");
+    //draw_points(t, point_red, point_blue);
+    //printf("draw scores successed\n");
+
+    //sleep(3);
+
     printf("clear leds ...\n");
-    led_clear(leds);
-    printf("clear leds succeeded\n");
+    led_clear(t);
+    printf("clear leds successed");
 
-    // 6) Delete resources
     printf("delete ...\n");
-    led_delete(leds);
-    printf("delete succeeded\n");
-
+    led_delete(t);
+    printf("delete successed\n");
+    
     return 0;
 }
