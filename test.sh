@@ -2,11 +2,8 @@ echo "start"
 # make clean
 # make all
 
-g++ -c -Iinclude ./lib/board.c -o ./lib/board.o
 g++ -c -Iinclude ./lib/board.c -o main.o -DDD
-#g++ -c -Iinclude coordinates.c -o coordinates.o
-echo "compile successed"
 
 g++ main.o ./lib/*.o -o main
-#g++ coordinates.o ./lib/*.o -o coordinates
-echo "link successed"
+
+g++ -c -Iinclude ./lib/board.c -o ./lib/board.o
