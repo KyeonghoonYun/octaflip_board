@@ -16,6 +16,7 @@ char *name;
 
 void send_json(int sockfd, cJSON *json) {
     char *msg = cJSON_PrintUnformatted(json);
+    printf("Send JSON to server:\n%s", msg);
     send(sockfd, msg, strlen(msg), 0);
     send(sockfd, "\n", 1, 0);
     free(msg);
@@ -268,7 +269,7 @@ int main(int argc, char *argv[]) {
         close(sockfd);
         free(name);
     } else {
-        fprintf(stderr, "Usage: %s -ip <ip_address> -username <name>\n", argv[0]);
+        fprintf(stderr, "Usage: %s -ip <ip_address> -port <port> -username <name>\n", argv[0]);
         return 1;
     }
     return 0;
