@@ -69,7 +69,7 @@ void draw_board(struct LedPanelSettings *leds, char board[8][8]) {
             int color_idx;
 
             // If this pixel is on a cell border (grid line), paint white:
-            if ((x % 8 == 0) || (y % 8 == 0)) {
+            if ((x % 8 == 0) || (y % 8 == 0) || (x % 8 == 7) || (y % 8 == 7)) {
                 color_idx = 4;  // white (grid)
             } else {
                 // Otherwise: interior. Determine which cell by integer-dividing by 8.
