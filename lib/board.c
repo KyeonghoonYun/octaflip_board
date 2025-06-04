@@ -61,41 +61,40 @@ void draw_grid(struct LedPanelSettings *leds) {
     // Clear entire canvas before drawing grid
     led_canvas_clear(leds->canvas);
 
-    // Each cell is 8×8 pixels; draw borders for each 8×8 block
-    for (int row = 0; row < 8; row++) {
-        for (int col = 0; col < 8; col++) {
-            int x0 = col * 8;
-            int y0 = row * 8;
-
-            // Top border of cell
-            for (int x = x0; x < x0 + 8; x++) {
-                led_canvas_set_pixel(leds->canvas, x, y0,
-                                     rgb_colors[4].r,
-                                     rgb_colors[4].g,
-                                     rgb_colors[4].b);
-            }
-            // Bottom border of cell
-            for (int x = x0; x < x0 + 8; x++) {
-                led_canvas_set_pixel(leds->canvas, x, y0 + 7,
-                                     rgb_colors[4].r,
-                                     rgb_colors[4].g,
-                                     rgb_colors[4].b);
-            }
-            // Left border of cell
-            for (int y = y0; y < y0 + 8; y++) {
-                led_canvas_set_pixel(leds->canvas, x0, y,
-                                     rgb_colors[4].r,
-                                     rgb_colors[4].g,
-                                     rgb_colors[4].b);
-            }
-            // Right border of cell
-            for (int y = y0; y < y0 + 8; y++) {
-                led_canvas_set_pixel(leds->canvas, x0 + 7, y,
-                                     rgb_colors[4].r,
-                                     rgb_colors[4].g,
-                                     rgb_colors[4].b);
-            }
+    // Draw vertical lines at x = 0, 8, 16, ..., 56
+    for (int i = 0; i < 8; i++) {
+        int x = i * (LED_PANEL_SIZE / 8);
+        for (int y = 0; y < LED_PANEL_SIZE; y++) {
+            led_canvas_set_pixel(leds->canvas, x, y,
+                                 rgb_colors[4].r,
+                                 rgb_colors[4].g,
+                                 rgb_colors[4].b);
         }
+    }
+    // Draw rightmost border at x = 63
+    for (int y = 0; y < LED_PANEL_SIZE; y++) {
+        led_canvas_set_pixel(leds->canvas, LED_PANEL_SIZE - 1, y,
+                             rgb_colors[4].r,
+                             rgb_colors[4].g,
+                             rgb_colors[4].b);
+    }
+
+    // Draw horizontal lines at y = 0, 8, 16, ..., 56
+    for (int i = 0; i < 8; i++) {
+        int y = i * (LED_PANEL_SIZE / 8);
+        for (int x = 0; x < LED_PANEL_SIZE; x++) {
+            led_canvas_set_pixel(leds->canvas, x, y,
+                                 rgb_colors[4].r,
+                                 rgb_colors[4].g,
+                                 rgb_colors[4].b);
+        }
+    }
+    // Draw bottom border at y = 63
+    for (int x = 0; x < LED_PANEL_SIZE; x++) {
+        led_canvas_set_pixel(leds->canvas, x, LED_PANEL_SIZE - 1,
+                             rgb_colors[4].r,
+                             rgb_colors[4].g,
+                             rgb_colors[4].b);
     }
 
     // Swap once to update display
