@@ -102,6 +102,8 @@ void handle_socket(int sockfd){
     while (exit) {
         n = recv(sockfd, buffer + len, sizeof(buffer) - len - 1, 0);
         if (n <= 0) {
+            led_clear();
+            led_delete();
             printf("server disconnected");
             return;
         }
@@ -159,7 +161,14 @@ void handle_socket(int sockfd){
                         c = 'R';
                     else
                         c = 'B';
+                    led_initialize();
+                    if (!leds) {
+                        fprintf(stderr, "Failed to initialize LED panel\n");
+                        exit = 0
+                        break;
+                    }
                 } else if (strcmp(type->valuestring, "your_turn") == 0 || strcmp(type->valuestring, "invalid_move") == 0) {
+                    draw_board(board);
                     generate_move(sockfd, board_local, c);
                 }
                 
@@ -170,6 +179,8 @@ void handle_socket(int sockfd){
             buffer[len] = '\0';
         }
     }
+    led_clear();
+    led_delete();
     //return NULL;
 }
 

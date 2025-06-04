@@ -106,8 +106,10 @@ void draw_board(char board[8][8]) {
 
 void led_clear() {
     // Clear all to black and swap immediately
-    led_canvas_clear(leds->canvas);
-    leds->canvas = led_matrix_swap_on_vsync(leds->matrix, leds->canvas);
+    if(leds){
+        led_canvas_clear(leds->canvas);
+        leds->canvas = led_matrix_swap_on_vsync(leds->matrix, leds->canvas);
+    }
 }
 
 void led_delete() {
