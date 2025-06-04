@@ -2,12 +2,13 @@
 #include "led-matrix-c.h"
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
 #define LED_PANEL_SIZE 64
+
+struct LedPanelSettings *leds;
 
 // Color table for symbols and grid lines.
 //   index:   0      1        2          3      4
@@ -21,7 +22,11 @@ static struct Color rgb_colors[] = {
 };
 
 struct LedPanelSettings *led_initialize(void) {
-    struct LedPanelSettings *leds = (struct LedPanelSettings*)malloc(sizeof(*leds));
+    if (leds){
+        free(leds);
+        leds = NULL;
+    }
+    *led = (struct LedPanelSettings*)malloc(sizeof(*leds));
     if (!leds) return NULL;
     memset(leds, 0, sizeof(*leds));
 
@@ -62,7 +67,7 @@ struct LedPanelSettings *led_initialize(void) {
     return leds;
 }
 
-void draw_board(struct LedPanelSettings *leds, char board[8][8]) {
+void draw_board(char board[8][8]) {
     // 1) Clear to black first
     led_canvas_clear(leds->canvas);
 
@@ -99,13 +104,13 @@ void draw_board(struct LedPanelSettings *leds, char board[8][8]) {
     leds->canvas = led_matrix_swap_on_vsync(leds->matrix, leds->canvas);
 }
 
-void led_clear(struct LedPanelSettings *leds) {
+void led_clear() {
     // Clear all to black and swap immediately
     led_canvas_clear(leds->canvas);
     leds->canvas = led_matrix_swap_on_vsync(leds->matrix, leds->canvas);
 }
 
-void led_delete(struct LedPanelSettings *leds) {
+void led_delete() {
     if (!leds) return;
     delete_font(leds->font);
     led_matrix_delete(leds->matrix);
@@ -114,7 +119,7 @@ void led_delete(struct LedPanelSettings *leds) {
 
 #ifdef D
 int main(){
-    struct LedPanelSettings *leds = led_initialize();
+    led_initialize();
     if (!leds) {
         fprintf(stderr, "Failed to initialize LED panel\n");
         return 1;
@@ -128,12 +133,12 @@ int main(){
     }
     
     // Draw the board and hold for 5 seconds
-    draw_board(leds, board);
+    draw_board(board);
     sleep(5);
 
     // Clear and exit
-    led_clear(leds);
-    led_delete(leds);
+    led_clear();
+    led_delete();
     return 0;
 }
 #endif
