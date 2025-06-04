@@ -2,8 +2,6 @@ echo "start"
 # make clean
 # make all
 
-g++ -c -Iinclude ./lib/board.c -o main.o -DDD
+g++ -Iinclude ./lib/board.c -DDD ./lib/*.o -o main
 
-g++ main.o ./lib/*.o -o main
-
-g++ -c -Iinclude ./lib/board.c -o ./lib/board.o
+#g++ -Iinclude ./lib/board.c client.c ./lib/*.o -o main
