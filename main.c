@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
     draw_board(t, board);
     printf("draw board successed\n");
 
-    sleep(1);
+    sleep(5);
 
     //printf("draw scores ...\n");
     //draw_points(t, point_red, point_blue);
