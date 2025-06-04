@@ -161,14 +161,13 @@ void handle_socket(int sockfd){
                         c = 'R';
                     else
                         c = 'B';
-                    led_initialize();
-                    if (!leds) {
+                    if (!led_initialize()) {
                         fprintf(stderr, "Failed to initialize LED panel\n");
-                        exit = 0
+                        exit = 0;
                         break;
                     }
                 } else if (strcmp(type->valuestring, "your_turn") == 0 || strcmp(type->valuestring, "invalid_move") == 0) {
-                    draw_board(board);
+                    draw_board(board_local);
                     generate_move(sockfd, board_local, c);
                 }
                 
