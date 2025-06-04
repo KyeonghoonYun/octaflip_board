@@ -1,6 +1,8 @@
 #include "board.h"
 #include "led-matrix-c.h"
 
+#include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -108,3 +110,29 @@ void led_delete(struct LedPanelSettings *leds) {
     led_matrix_delete(leds->matrix);
     free(leds);
 }
+
+#ifdef DDD
+int main(){
+    struct LedPanelSettings *leds = led_initialize();
+    if (!leds) {
+        fprintf(stderr, "Failed to initialize LED panel\n");
+        return 1;
+    }
+    char board[8][8] = {0}
+    for(int i=0;i<8;i++){
+        char line[100];
+        scanf("%s", line);
+        for (int j=0;j<8;j++)
+            board[i][j] = line[j];
+    }
+    
+    // Draw the board and hold for 5 seconds
+    draw_board(leds, board);
+    sleep(5);
+
+    // Clear and exit
+    led_clear(leds);
+    led_delete(leds);
+    return 0;
+}
+#endif DDD
