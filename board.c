@@ -26,7 +26,7 @@ struct LedPanelSettings *led_initialize(void) {
         free(leds);
         leds = NULL;
     }
-    *leds = (struct LedPanelSettings*)malloc(sizeof(struct LedPanelSettings));
+    leds = malloc(sizeof(struct LedPanelSettings));
     if (!leds) return NULL;
     memset(leds, 0, sizeof(*leds));
 
