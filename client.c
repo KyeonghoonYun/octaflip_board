@@ -241,7 +241,7 @@ void await_game_start(int sockfd) {
 
 int main(int argc, char *argv[]) {
     if (argc == 7 && strcmp(argv[1], "-ip") == 0 && strcmp(argv[3], "-port") == 0 && strcmp(argv[5], "-username") == 0) {
-        name =  malloc(strlen(argv[6]) + 1);
+        name =  (char *)malloc(strlen(argv[6]) + 1);
         strcpy(name, argv[6]);
         
         int sockfd = connect_to_server(argv[2], argv[4]);
