@@ -25,7 +25,6 @@ struct LedPanelSettings *led_initialize(void) {
     memset(leds, 0, sizeof(*leds));
 
     leds->size = LED_PANEL_SIZE;
-    // leds->matrix = led_matrix_create(LED_PANEL_SIZE, 1, 1);
 
     struct RGBLedMatrixOptions opts;
     memset(&opts, 0, sizeof(opts));
@@ -59,40 +58,67 @@ struct LedPanelSettings *led_initialize(void) {
 
 // draw grid
 void draw_grid(struct LedPanelSettings *leds) {
-    for (int row = 0; row <= 8; row++) {
-        int x0 = 3;
-        int y0 = 3 + 4 * row;
-        int c = 4;
-        print_debug_msg("draw_grid", x0, y0, 1, 33, c);
-        draw_pixels(leds, x0, y0, 1, 33, c);
+    // clear entire canvas before drawing grid
+    led_canvas_clear(leds->canvas);
+
+    // draw vertical lines at x = 0, 8, 16, ..., 64
+    for (int i = 0; i <= 8; i++) {
+        int x = i * (LED_PANEL_SIZE / 8);
+        for (int y = 0; y < LED_PANEL_SIZE; y++) {
+            led_canvas_set_pixel(leds->canvas, x, y,
+                                 rgb_colors[4].r,
+                                 rgb_colors[4].g,
+                                 rgb_colors[4].b);
+        }
     }
-    for (int col = 0; col < 8; col++) {
-        int x0 = 3 + 4 * col;
-        int y0 = 3;
-        int c = 4;
-        print_debug_msg("draw_grid", x0, y0, 33, 1, c);
-        draw_pixels(leds, x0, y0, 33, 1, c);
+
+    // draw horizontal lines at y = 0, 8, 16, ..., 64
+    for (int j = 0; j <= 8; j++) {
+        int y = j * (LED_PANEL_SIZE / 8);
+        for (int x = 0; x < LED_PANEL_SIZE; x++) {
+            led_canvas_set_pixel(leds->canvas, x, y,
+                                 rgb_colors[4].r,
+                                 rgb_colors[4].g,
+                                 rgb_colors[4].b);
+        }
     }
+
+    // swap once to update display
     leds->canvas = led_matrix_swap_on_vsync(leds->matrix, leds->canvas);
 }
 
 // draw board state (R, B, #)
 void draw_board(struct LedPanelSettings *leds, char board[8][8]) {
-    for (int row = 0; row < 8; row++) {
-        int y0 = 4 + 4 * row;
-        for (int col = 0; col < 8; col++) {
-            int x0 = 4 + 4 * col;
+    // first draw the grid
+    draw_grid(leds);
 
-            int c = 4;
-            if (board[row][col] == 'R')         c = 0;
-            else if (board[row][col] == 'B')    c = 1;
-            else if (board[row][col] == '#')    c = 2;
-            else if (board[row][col] == '.')    c = 3;
-            else                                c = 4;
-            print_debug_msg("draw_board", x0, y0, 3, 3, c);
-            draw_pixels(leds, x0, y0, 3, 3, c);
+    // fill each cell's interior (6×6 pixels inside the 8×8 border)
+    int cell_size = LED_PANEL_SIZE / 8; // 8
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
+            char c = board[row][col];
+            int color_idx;
+            if      (c == 'R') color_idx = 0;
+            else if (c == 'B') color_idx = 1;
+            else if (c == '#') color_idx = 2;
+            else                color_idx = 3;  // '.' or any other → black
+
+            uint8_t r = rgb_colors[color_idx].r;
+            uint8_t g = rgb_colors[color_idx].g;
+            uint8_t b = rgb_colors[color_idx].b;
+
+            int x_start = col * cell_size + 1;
+            int y_start = row * cell_size + 1;
+            // interior is from +1 to +(cell_size-2) ⇒ 1..6
+            for (int y = y_start; y < y_start + (cell_size - 2); y++) {
+                for (int x = x_start; x < x_start + (cell_size - 2); x++) {
+                    led_canvas_set_pixel(leds->canvas, x, y, r, g, b);
+                }
+            }
         }
     }
+
+    // swap once to update display
     leds->canvas = led_matrix_swap_on_vsync(leds->matrix, leds->canvas);
 }
 
