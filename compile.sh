@@ -1,6 +1,6 @@
 echo "compile start"
-# make clean
-# make all
+make clean
+make all
 
 g++ -Iinclude board.c ./lib/*.o -o board -D D
 
