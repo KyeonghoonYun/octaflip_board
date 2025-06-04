@@ -111,7 +111,7 @@ void led_delete(struct LedPanelSettings *leds) {
     free(leds);
 }
 
-#ifdef DDD
+#ifdef D
 int main(){
     struct LedPanelSettings *leds = led_initialize();
     if (!leds) {
