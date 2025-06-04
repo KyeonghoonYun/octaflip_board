@@ -24,13 +24,13 @@ struct LedPanelSettings *led_initialize(void);
 //   – Otherwise, compute row = y/8, col = x/8, and pick color from board[row][col]:
 //       'R' → red, 'B' → blue, '#' → gray, else → black.
 // Finally, call swap_on_vsync(...) once to update the display.
-void draw_board(struct LedPanelSettings *leds, char board[8][8]);
+void draw_board(char board[8][8]);
 
 // Clear the entire 64×64 panel to black (one clear + one swap).
-void led_clear(struct LedPanelSettings *leds);
+void led_clear();
 
 // Free all resources (font, matrix, struct).
-void led_delete(struct LedPanelSettings *leds);
+void led_delete();
 
 #ifdef __cplusplus
 }
