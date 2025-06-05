@@ -11,8 +11,16 @@
 #include <stdint.h>   // for uint64_t
 #include <limits.h>   // for INT_MIN, INT_MAX
 #include "cJSON.h"
+#include <sys/time.h>
 #include "board.h"
 
+long long get_time_ms() {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (long long)(tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
+}
+long long start_time;
+long long deadline_ms;
 
 /**
  * Build two 64-bit masks from the 8×8 char board:
@@ -23,10 +31,12 @@
  */
 void board_to_bitboards(const char board[8][8],
                         uint64_t *red_mask,
-                        uint64_t *blue_mask)
+                        uint64_t *blue_mask,
+                        uint64_t *wall_mask)
 {
     *red_mask  = 0ULL;
     *blue_mask = 0ULL;
+    *wall_mask = 0ULL;
 
     for (int r = 0; r < 8; r++) {
         for (int c = 0; c < 8; c++) {
@@ -36,6 +46,8 @@ void board_to_bitboards(const char board[8][8],
                 *red_mask |= bit;
             } else if (board[r][c] == 'B') {
                 *blue_mask |= bit;
+            } else if (board[r][c] == '#') {
+                *wall_mask |= bit;
             }
             // else '.' → do nothing
         }
@@ -114,16 +126,18 @@ static inline int evaluate_board(uint64_t my_mask, uint64_t opp_mask)
  *
  * @param my_mask
  * @param opp_mask
+ * @param wall_mask
  * @param from_list  array of size ≥1024; write source indexes (0..63)
  * @param to_list    parallel array; write destination indexes
  * @return number of moves found
  */
 static int generate_moves_bitboard(uint64_t my_mask,
                                    uint64_t opp_mask,
+                                   uint64_t wall_mask,
                                    int *from_list,
                                    int *to_list)
 {
-    uint64_t occupancy = my_mask | opp_mask;
+    uint64_t occupancy = my_mask | opp_mask | wall_mask;
     int move_count = 0;
 
     static const int dr8[8] = {-1,-1, 0,+1,+1,+1, 0,-1};
@@ -155,6 +169,7 @@ static int generate_moves_bitboard(uint64_t my_mask,
 /**
  * @param my_mask   current player's bits
  * @param opp_mask  opponent's bits
+ * @param wall_mask wall bits
  * @param depth     how many plies left
  * @param alpha
  * @param beta
@@ -163,16 +178,20 @@ static int generate_moves_bitboard(uint64_t my_mask,
  */
 int minimax_bitboard(uint64_t my_mask,
                      uint64_t opp_mask,
+                     uint64_t wall_mask,
                      int depth,
                      int alpha,
                      int beta)
 {
+    if (get_time_ms() >= deadline_ms) {
+        return evaluate_board(my_mask, opp_mask);
+    }
     if (depth == 0) {
         return evaluate_board(my_mask, opp_mask);
     }
 
     int from_list[1024], to_list[1024];
-    int move_count = generate_moves_bitboard(my_mask, opp_mask,
+    int move_count = generate_moves_bitboard(my_mask, opp_mask, wall_mask,
                                              from_list, to_list);
     if (move_count == 0) {
         return evaluate_board(my_mask, opp_mask);
@@ -184,7 +203,7 @@ int minimax_bitboard(uint64_t my_mask,
         apply_move_bitboard(my_mask, opp_mask,
                             from_list[i], to_list[i],
                             &nm, &no);
-        int score = -minimax_bitboard(no, nm,
+        int score = -minimax_bitboard(no, nm, wall_mask,
                                       depth - 1,
                                       -beta, -alpha);
         if (score > best) {
@@ -261,15 +280,17 @@ typedef struct {
  *   - Sends that move via send_move(...)
  */
 void generate_move(int sockfd, const char board[8][8], char c) {
-    uint64_t red_mask, blue_mask;
-    board_to_bitboards(board, &red_mask, &blue_mask);
+    start_time = get_time_ms();
+    deadline_ms = start_time + 2900;
+    uint64_t red_mask, blue_mask, wall_mask;
+    board_to_bitboards(board, &red_mask, &blue_mask, &wall_mask);
 
     // Determine which is “my” bitboard
     uint64_t my_mask  = (c == 'R') ? red_mask  : blue_mask;
     uint64_t opp_mask = (c == 'R') ? blue_mask : red_mask;
 
     int from_root[1024], to_root[1024];
-    int root_moves = generate_moves_bitboard(my_mask, opp_mask,
+    int root_moves = generate_moves_bitboard(my_mask, opp_mask, wall_mask,
                                              from_root, to_root);
 
     if (root_moves == 0) {
@@ -277,7 +298,7 @@ void generate_move(int sockfd, const char board[8][8], char c) {
         return;
     }
 
-    int max_depth = (root_moves > 60) ? 6 : 7;
+    int max_depth = (root_moves > 60) ? 5 : 6;
     int best_from = -1, best_to = -1;
     int alpha = INT_MIN, beta = INT_MAX;
 
@@ -286,7 +307,7 @@ void generate_move(int sockfd, const char board[8][8], char c) {
         apply_move_bitboard(my_mask, opp_mask,
                             from_root[i], to_root[i],
                             &nm, &no);
-        int score = -minimax_bitboard(no, nm,
+        int score = -minimax_bitboard(no, nm, wall_mask,
                                       max_depth - 1,
                                       -beta, -alpha);
         if (score > alpha) {

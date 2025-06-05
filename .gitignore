@@ -5,3 +5,5 @@
 .envrc
 .direnv
 main
+board
+client
